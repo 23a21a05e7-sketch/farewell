@@ -20,15 +20,14 @@ function getSheet() {
   let sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    sheet
-      .getRange("A1")
-      .setValue(
-        JSON.stringify({
-          sections: [],
-          expenses: [],
-          updatedAt: new Date().toISOString(),
-        }),
-      );
+    sheet.getRange("A1").setValue(
+      JSON.stringify({
+        sections: [],
+        expenses: [],
+        committees: [],
+        updatedAt: new Date().toISOString(),
+      }),
+    );
   }
   return sheet;
 }
@@ -60,6 +59,7 @@ function doPost(e) {
     const payload = {
       sections: Array.isArray(body.sections) ? body.sections : [],
       expenses: Array.isArray(body.expenses) ? body.expenses : [],
+      committees: Array.isArray(body.committees) ? body.committees : [],
       updatedAt: body.updatedAt || new Date().toISOString(),
     };
 

@@ -13,9 +13,10 @@ import { toast } from "sonner";
 import { Save } from "lucide-react";
 import {
   defaultExpenses,
-  committees,
+  defaultCommittees,
   getTotalExpense,
   formatINR,
+  type Committee,
   type ExpenseItem,
 } from "@/lib/budgetData";
 import {
@@ -26,6 +27,7 @@ import {
 
 const STORAGE_KEY_SECTIONS = "farewell_sections";
 const STORAGE_KEY_EXPENSES = "farewell_expenses";
+const STORAGE_KEY_COMMITTEES = "farewell_committees";
 
 function loadSections(): Section[] {
   try {
@@ -53,12 +55,48 @@ function loadExpenses(): ExpenseItem[] {
   return defaultExpenses;
 }
 
+function loadCommittees(): Committee[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_COMMITTEES);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // Ignore parse errors and return default
+  }
+  return defaultCommittees;
+}
+
 export default function Index() {
   const [items, setItems] = useState<ExpenseItem[]>(loadExpenses);
   const [isAdmin, setIsAdmin] = useState(false);
   const [sections, setSections] = useState<Section[]>(loadSections);
+  const [committeeItems, setCommitteeItems] =
+    useState<Committee[]>(loadCommittees);
   const [hasChanges, setHasChanges] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const saveSnapshot = async (snapshot: {
+    sections: Section[];
+    expenses: ExpenseItem[];
+    committees: Committee[];
+  }) => {
+    localStorage.setItem(
+      STORAGE_KEY_SECTIONS,
+      JSON.stringify(snapshot.sections),
+    );
+    localStorage.setItem(
+      STORAGE_KEY_EXPENSES,
+      JSON.stringify(snapshot.expenses),
+    );
+    localStorage.setItem(
+      STORAGE_KEY_COMMITTEES,
+      JSON.stringify(snapshot.committees),
+    );
+
+    await saveBudgetToCloud({
+      ...snapshot,
+      updatedAt: new Date().toISOString(),
+    });
+  };
 
   useEffect(() => {
     if (!isCloudStorageEnabled()) return;
@@ -72,11 +110,13 @@ export default function Index() {
 
         const localSections = loadSections();
         const localExpenses = loadExpenses();
+        const localCommittees = loadCommittees();
 
         if (!cloudData) {
           await saveBudgetToCloud({
             sections: localSections,
             expenses: localExpenses,
+            committees: localCommittees,
             updatedAt: new Date().toISOString(),
           });
           return;
@@ -84,11 +124,13 @@ export default function Index() {
 
         const hasCloudSections = cloudData.sections.length > 0;
         const hasCloudExpenses = cloudData.expenses.length > 0;
+        const hasCloudCommittees = cloudData.committees.length > 0;
 
-        if (!hasCloudSections && !hasCloudExpenses) {
+        if (!hasCloudSections && !hasCloudExpenses && !hasCloudCommittees) {
           await saveBudgetToCloud({
             sections: localSections,
             expenses: localExpenses,
+            committees: localCommittees,
             updatedAt: new Date().toISOString(),
           });
           return;
@@ -100,6 +142,10 @@ export default function Index() {
 
         if (hasCloudExpenses) {
           setItems(cloudData.expenses);
+        }
+
+        if (hasCloudCommittees) {
+          setCommitteeItems(cloudData.committees);
         }
 
         setHasChanges(false);
@@ -115,6 +161,30 @@ export default function Index() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isCloudStorageEnabled() || !isAdmin || !hasChanges) return;
+
+    const timeoutId = window.setTimeout(() => {
+      void (async () => {
+        try {
+          await saveSnapshot({
+            sections,
+            expenses: items,
+            committees: committeeItems,
+          });
+          setHasChanges(false);
+          toast.success("Auto-saved to cloud. ✅");
+        } catch {
+          toast.error("Auto-save failed. You can try Submit again.");
+        }
+      })();
+    }, 1200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [sections, items, committeeItems, isAdmin, hasChanges]);
+
   const handleAmountChange = (id: string, amount: number) => {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, amount } : item)),
@@ -127,16 +197,19 @@ export default function Index() {
     setHasChanges(true);
   };
 
+  const handleCommitteesChange = (newCommittees: Committee[]) => {
+    setCommitteeItems(newCommittees);
+    setHasChanges(true);
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    localStorage.setItem(STORAGE_KEY_SECTIONS, JSON.stringify(sections));
-    localStorage.setItem(STORAGE_KEY_EXPENSES, JSON.stringify(items));
 
     try {
-      await saveBudgetToCloud({
+      await saveSnapshot({
         sections,
         expenses: items,
-        updatedAt: new Date().toISOString(),
+        committees: committeeItems,
       });
 
       setHasChanges(false);
@@ -169,6 +242,7 @@ export default function Index() {
               <ReportDownload
                 sections={sections}
                 expenses={items}
+                committees={committeeItems}
                 totalCollected={totalCollected}
                 totalExpense={totalExpense}
               />
@@ -244,7 +318,11 @@ export default function Index() {
         />
 
         {/* Committees */}
-        <CommitteeCards committees={committees} />
+        <CommitteeCards
+          committees={committeeItems}
+          isAdmin={isAdmin}
+          onCommitteesChange={handleCommitteesChange}
+        />
 
         {/* Admin Login (when not admin) */}
         {!isAdmin && (

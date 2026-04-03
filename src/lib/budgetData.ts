@@ -23,12 +23,13 @@ export const defaultExpenses: ExpenseItem[] = [
 
 export const totalCollected = 124000;
 
-export const committees: Committee[] = [
+export const defaultCommittees: Committee[] = [
   {
     id: "stage",
     emoji: "🎤",
     name: "Stage committee",
-    description: "Decoration, mic & sound setup, backdrop, lighting, stage props management.",
+    description:
+      "Decoration, mic & sound setup, backdrop, lighting, stage props management.",
     details: [
       { label: "Budget", value: "₹20,000" },
       { label: "Members", value: "8 students" },
@@ -40,7 +41,8 @@ export const committees: Committee[] = [
     id: "food",
     emoji: "🍽️",
     name: "Food committee",
-    description: "Menu planning, catering vendor, serving arrangements and post-event cleanup.",
+    description:
+      "Menu planning, catering vendor, serving arrangements and post-event cleanup.",
     details: [
       { label: "Budget", value: "₹60,000" },
       { label: "Members", value: "12 students" },
@@ -52,7 +54,8 @@ export const committees: Committee[] = [
     id: "invitation",
     emoji: "📩",
     name: "Invitation committee",
-    description: "Designs & sends invites to faculty, alumni, guests. Tracks RSVPs.",
+    description:
+      "Designs & sends invites to faculty, alumni, guests. Tracks RSVPs.",
     details: [
       { label: "Invites sent", value: "84 / 100" },
       { label: "RSVPs", value: "61 confirmed" },
@@ -64,7 +67,8 @@ export const committees: Committee[] = [
     id: "guest",
     emoji: "🙏",
     name: "Guest receiving",
-    description: "Welcomes guests, registration desk, name badges and gift distribution.",
+    description:
+      "Welcomes guests, registration desk, name badges and gift distribution.",
     details: [
       { label: "Gifts budget", value: "₹15,000" },
       { label: "Badges ready", value: "61 / 100" },
@@ -76,7 +80,8 @@ export const committees: Committee[] = [
     id: "program",
     emoji: "📅",
     name: "Program schedule",
-    description: "Event timeline, MC & anchoring coordination, inter-committee management.",
+    description:
+      "Event timeline, MC & anchoring coordination, inter-committee management.",
     details: [
       { label: "Total slots", value: "12 items" },
       { label: "Confirmed", value: "9 / 12" },
@@ -85,6 +90,8 @@ export const committees: Committee[] = [
     ],
   },
 ];
+
+export const committees: Committee[] = defaultCommittees;
 
 export function formatINR(amount: number): string {
   return amount.toLocaleString("en-IN");

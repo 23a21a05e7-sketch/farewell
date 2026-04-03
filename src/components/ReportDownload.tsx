@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import { formatINR, type ExpenseItem } from "@/lib/budgetData";
+import { formatINR, type ExpenseItem, type Committee } from "@/lib/budgetData";
 import { type Section } from "@/components/SectionCollection";
 
 interface ReportDownloadProps {
   sections: Section[];
   expenses: ExpenseItem[];
+  committees?: Committee[];
   totalCollected: number;
   totalExpense: number;
 }
@@ -13,9 +14,13 @@ interface ReportDownloadProps {
 export default function ReportDownload({
   sections,
   expenses,
+  committees = [],
   totalCollected,
   totalExpense,
 }: ReportDownloadProps) {
+  const csv = (value: string | number) =>
+    `"${String(value).replaceAll('"', '""')}"`;
+
   const handleDownload = () => {
     const lines: string[] = [];
     const now = new Date().toLocaleString("en-IN");
@@ -27,23 +32,41 @@ export default function ReportDownload({
     // Sections
     lines.push("CSE SECTIONS - COLLECTION");
     lines.push("Section,Amount (₹)");
-    sections.forEach((s) => lines.push(`${s.name},${s.amount}`));
-    lines.push(`Total Collected,${totalCollected}`);
+    sections.forEach((s) => lines.push(`${csv(s.name)},${csv(s.amount)}`));
+    lines.push(`${csv("Total Collected")},${csv(totalCollected)}`);
     lines.push("");
 
     // Expenses
     lines.push("EXPENSES");
     lines.push("Item,Amount (₹)");
-    expenses.forEach((e) => lines.push(`${e.name},${e.amount}`));
-    lines.push(`Total Expense,${totalExpense}`);
+    expenses.forEach((e) => lines.push(`${csv(e.name)},${csv(e.amount)}`));
+    lines.push(`${csv("Total Expense")},${csv(totalExpense)}`);
+    lines.push("");
+
+    // Committees
+    lines.push("COMMITTEES");
+    lines.push("Committee,Field,Value");
+    committees.forEach((committee) => {
+      lines.push(
+        `${csv(committee.name)},${csv("Emoji")},${csv(committee.emoji)}`,
+      );
+      lines.push(
+        `${csv(committee.name)},${csv("Description")},${csv(committee.description)}`,
+      );
+      committee.details.forEach((detail) => {
+        lines.push(
+          `${csv(committee.name)},${csv(detail.label)},${csv(detail.value)}`,
+        );
+      });
+    });
     lines.push("");
 
     // Balance
     const remaining = totalCollected - totalExpense;
     lines.push("BALANCE SUMMARY");
-    lines.push(`Total Collected,${totalCollected}`);
-    lines.push(`Total Expense,${totalExpense}`);
-    lines.push(`Remaining Balance,${remaining}`);
+    lines.push(`${csv("Total Collected")},${csv(totalCollected)}`);
+    lines.push(`${csv("Total Expense")},${csv(totalExpense)}`);
+    lines.push(`${csv("Remaining Balance")},${csv(remaining)}`);
 
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
