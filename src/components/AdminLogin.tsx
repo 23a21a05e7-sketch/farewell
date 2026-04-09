@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Lock, LogOut, Shield } from "lucide-react";
 
 const STORAGE_KEY = "budget_admin_password";
-const DEFAULT_PASSWORD = "admin123";
+const DEFAULT_PASSWORD = "bs9949";
 
 function getPassword() {
   return localStorage.getItem(STORAGE_KEY) || DEFAULT_PASSWORD;
