@@ -8,6 +8,12 @@ interface BalanceSummaryProps {
 export default function BalanceSummary({ totalCollected, totalExpense }: BalanceSummaryProps) {
   const remaining = totalCollected - totalExpense;
 
+  const label =
+    remaining >= 0 ? "Remaining balance" : "Amount required";
+
+  const colorClass =
+    remaining >= 0 ? "text-success" : "text-destructive";
+
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-6 card-glow animate-slide-up">
       <h2 className="text-lg font-bold text-foreground flex items-center gap-2 mb-5">
@@ -21,6 +27,7 @@ export default function BalanceSummary({ totalCollected, totalExpense }: Balance
             ₹{formatINR(totalCollected)}
           </p>
         </div>
+
         <div className="rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 p-4 text-center">
           <p className="text-sm text-muted-foreground mb-1">Total expense</p>
           <p className="text-xl font-bold text-accent font-mono">
@@ -30,14 +37,13 @@ export default function BalanceSummary({ totalCollected, totalExpense }: Balance
       </div>
 
       <div className="text-center rounded-xl bg-gradient-to-r from-primary/5 via-transparent to-accent/5 p-4">
-        <p
-          className={`text-3xl font-extrabold font-mono ${
-            remaining >= 0 ? "text-success" : "text-destructive"
-          }`}
-        >
+        <p className={`text-3xl font-extrabold font-mono ${colorClass}`}>
           ₹ {formatINR(Math.abs(remaining))}
         </p>
-        <p className="text-sm text-muted-foreground mt-1">remaining balance</p>
+
+        <p className="text-sm text-muted-foreground mt-1">
+          {label}
+        </p>
       </div>
     </div>
   );
