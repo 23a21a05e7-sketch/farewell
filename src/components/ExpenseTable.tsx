@@ -1,4 +1,4 @@
-import { ExpenseItem, formatINR } from "@/lib/budgetData";
+ import { ExpenseItem, formatINR } from "@/lib/budgetData";
 import { Input } from "@/components/ui/input";
 
 const CHART_COLORS: Record<string, string> = {
