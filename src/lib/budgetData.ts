@@ -18,7 +18,7 @@ export const defaultExpenses: ExpenseItem[] = [
   { id: "2", name: "Food & Catering", amount: 60000, colorKey: "food" },
   { id: "3", name: "Gifts", amount: 15000, colorKey: "gifts" },
   { id: "4", name: "DJ / Sound", amount: 10000, colorKey: "dj" },
-  { id: "5", name: "Camera", amount: 5000, colorKey: "misc" },
+  { id: "5", name: "Camera", amount: 5000, colorKey: "Camera" },
 ];
 
 export const totalCollected = 124000;
