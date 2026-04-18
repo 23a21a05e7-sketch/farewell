@@ -6,7 +6,7 @@ stage: "hsl(340, 82%, 55%)",
 food: "hsl(210, 100%, 55%)",
 gifts: "hsl(45, 100%, 55%)",
 dj: "hsl(160, 70%, 42%)",
-misc: "hsl(280, 70%, 60%)",
+Camera: "hsl(280, 70%, 60%)",
 };
 
 interface ExpenseTableProps {
